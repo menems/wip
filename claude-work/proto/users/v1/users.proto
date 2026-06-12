@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package users.v1;
+
+option go_package = "github.com/blaz/serve/gen/users/v1;usersv1";
+
+service UserService {
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc SignIn(SignInRequest)      returns (SignInResponse);
+}
+
+message RegisterRequest  { string name = 1; string email = 2; string password = 3; }
+message RegisterResponse { string id = 1; string name = 2; string email = 3; }
+
+message SignInRequest  { string email = 1; string password = 2; }
+message SignInResponse { string token = 1; }

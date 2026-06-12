@@ -1,0 +1,9 @@
+/**
+ * Per-project theme overrides.
+ * Override any CSS variable defined in globals.css here.
+ * This file is imported after the base styles so all overrides take effect.
+ *
+ * Example: change the primary colour
+ *   :root { --primary: 221.2 83.2% 53.3%; }
+ *   .dark  { --primary: 217.2 91.2% 59.8%; }
+ */

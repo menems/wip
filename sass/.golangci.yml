@@ -1,0 +1,27 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: none
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - revive
+    - gocyclo
+    - misspell
+    - bodyclose
+    - noctx
+  settings:
+    gocyclo:
+      min-complexity: 10
+  exclusions:
+    paths:
+      - "internal/db"
+    rules:
+      - path: "_test\\.go"
+        linters:
+          - bodyclose
+          - gocyclo

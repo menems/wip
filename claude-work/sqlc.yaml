@@ -1,0 +1,32 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    schema:  "db/migrations"
+    queries: "db/queries/contacts.sql"
+    gen:
+      go:
+        package:        "db"
+        out:            "internal/contacts/db"
+        emit_interface: true
+        sql_package:    "pgx/v5"
+        overrides:
+          - db_type: "uuid"
+            go_type:
+              import: "github.com/google/uuid"
+              package: "uuid"
+              type: "UUID"
+  - engine: "postgresql"
+    schema:  "db/migrations"
+    queries: "db/queries/users.sql"
+    gen:
+      go:
+        package:        "usersdb"
+        out:            "internal/users/db"
+        emit_interface: true
+        sql_package:    "pgx/v5"
+        overrides:
+          - db_type: "uuid"
+            go_type:
+              import: "github.com/google/uuid"
+              package: "uuid"
+              type: "UUID"

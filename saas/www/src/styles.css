@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --radius: var(--radius);
+}
+
+@layer base {
+  :root {
+    --background: 42 19% 93%;
+    --foreground: 30 30% 12%;
+    --card: 42 25% 97%;
+    --card-foreground: 30 30% 12%;
+    --popover: 42 25% 97%;
+    --popover-foreground: 30 30% 12%;
+    --primary: 24 50% 26%;
+    --primary-foreground: 42 19% 93%;
+    --secondary: 38 18% 86%;
+    --secondary-foreground: 30 25% 20%;
+    --muted: 38 15% 88%;
+    --muted-foreground: 30 12% 48%;
+    --accent: 26 45% 52%;
+    --accent-foreground: 42 19% 93%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 42 19% 93%;
+    --border: 38 15% 84%;
+    --input: 38 15% 84%;
+    --ring: 24 50% 26%;
+    --radius: 0.625rem;
+  }
+
+  .dark {
+    --background: 30 20% 7%;
+    --foreground: 42 19% 93%;
+    --card: 30 18% 10%;
+    --card-foreground: 42 19% 93%;
+    --popover: 30 18% 10%;
+    --popover-foreground: 42 19% 93%;
+    --primary: 42 19% 93%;
+    --primary-foreground: 30 20% 10%;
+    --secondary: 30 15% 15%;
+    --secondary-foreground: 42 15% 82%;
+    --muted: 30 12% 16%;
+    --muted-foreground: 32 10% 58%;
+    --accent: 26 30% 22%;
+    --accent-foreground: 42 19% 93%;
+    --destructive: 0 55% 32%;
+    --destructive-foreground: 42 19% 93%;
+    --border: 30 12% 18%;
+    --input: 30 12% 18%;
+    --ring: 42 15% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

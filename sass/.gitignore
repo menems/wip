@@ -1,0 +1,32 @@
+# Binaries
+server
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test & coverage artifacts
+*.test
+coverage.out
+*.prof
+
+# Go workspace
+go.work
+go.work.sum
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Claude
+.claude/
+
+# Node
+node_modules/

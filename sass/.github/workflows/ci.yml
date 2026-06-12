@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  # Run on every push to any branch to catch issues early.
+  # push:
+  #   branches: ["**"]
+  # Run on pull requests targeting main to gate merges.
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Lint ────────────────────────────────────────────────────────────────────
+  # Runs golangci-lint (static analysis) and govulncheck (known CVEs).
+  # Fails fast so developers get style/security feedback before tests run.
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          # golangci-lint-action manages its own cache; disable setup-go cache
+          # to avoid double-caching and stale lint results.
+          cache: false
+
+      - name: Run golangci-lint
+        # v7+ is required for golangci-lint v2 support.
+        uses: golangci/golangci-lint-action@v7
+        with:
+          # Pin to v2.x to match the v2 config format in .golangci.yml.
+          version: v2.10.1
+
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@latest
+
+      - name: Run govulncheck
+        run: govulncheck ./...
+
+  # ── Test ────────────────────────────────────────────────────────────────────
+  # Runs the full test suite with the race detector enabled.
+  # A Postgres service container is provisioned so DB-dependent tests can run.
+  # golang-migrate applies all pending migrations before tests execute.
+  # Coverage profile is uploaded as an artifact for later inspection.
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: sass
+          POSTGRES_PASSWORD: sass
+          POSTGRES_DB: sass_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgres://sass:sass@localhost:5432/sass_test?sslmode=disable
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Install migrate CLI
+        run: go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+      - name: Run migrations
+        run: migrate -path db/migrations -database "$DATABASE_URL" up
+
+      - name: Run tests (race detector + coverage)
+        run: go test -race -count=1 -coverprofile=coverage.out ./...
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.out
+
+  # ── Build ───────────────────────────────────────────────────────────────────
+  # Verifies the binary compiles and the Docker image builds successfully.
+  # Catches import errors and Dockerfile regressions that tests would miss.
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build binary
+        run: go build -o server .
+
+      - name: Build Docker image
+        run: docker build -t sass:ci .

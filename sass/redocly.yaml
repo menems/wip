@@ -1,0 +1,3 @@
+rules:
+  # localhost is intentional — it documents the local development server.
+  no-server-example.com: off

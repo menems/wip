@@ -1,0 +1,1 @@
+ALTER TABLE contacts ADD COLUMN address TEXT NOT NULL DEFAULT '';

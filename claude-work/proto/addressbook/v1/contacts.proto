@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package addressbook.v1;
+
+option go_package = "github.com/blaz/serve/gen/addressbook/v1;addressbookv1";
+
+service ContactService {
+  rpc Add(AddRequest)               returns (AddResponse);
+  rpc List(ListRequest)             returns (ListResponse);
+  rpc GetByName(GetByNameRequest)   returns (GetByNameResponse);
+  rpc Delete(DeleteRequest)         returns (DeleteResponse);
+}
+
+message Address {
+  string street  = 1;
+  string city    = 2;
+  string state   = 3;
+  string zip     = 4;
+  string country = 5;
+}
+
+message Contact {
+  string  name     = 1;
+  string  phone    = 2;
+  string  email    = 3;
+  Address address  = 4;
+}
+
+message AddRequest {
+  string  name     = 1;
+  string  phone    = 2;
+  string  email    = 3;
+  Address address  = 4;
+}
+message AddResponse     {}
+
+message ListRequest     {}
+message ListResponse    { repeated Contact contacts = 1; }
+
+message GetByNameRequest  { string name = 1; }
+message GetByNameResponse { Contact contact = 1; }
+
+message DeleteRequest   { string name = 1; }
+message DeleteResponse  {}

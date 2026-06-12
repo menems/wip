@@ -1,0 +1,182 @@
+openapi: 3.1.0
+
+info:
+  title: sass
+  version: 0.1.0
+  description: |
+    Production-ready HTTP server with structured logging, Prometheus metrics,
+    OpenTelemetry tracing, and pluggable health checks.
+  license:
+    name: MIT
+    identifier: MIT
+
+# This API requires no authentication. Declaring an empty security array here
+# satisfies linters that verify every operation has an explicit security policy.
+security: []
+
+servers:
+  - url: http://localhost:8080
+    description: Local development
+  - url: "{scheme}://{host}"
+    description: Custom deployment
+    variables:
+      scheme:
+        enum: [http, https]
+        default: https
+      host:
+        default: example.com
+
+paths:
+  /:
+    get:
+      operationId: getRoot
+      summary: Root
+      description: Returns a plain-text greeting.
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Hello, world!\n"
+        "405":
+          description: Method Not Allowed
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /health/live:
+    get:
+      operationId: getLive
+      summary: Liveness probe
+      description: |
+        Always returns 200. Kubernetes uses this to decide whether to restart
+        the container. It never runs application-level checks.
+      responses:
+        "200":
+          description: Server is alive
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+        "405":
+          description: Method Not Allowed
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /health/ready:
+    get:
+      operationId: getReady
+      summary: Readiness probe
+      description: |
+        Runs all registered `Checker` implementations concurrently. Returns 200
+        when every checker passes. Returns 503 with an RFC 7807 problem body when
+        any checker fails. Kubernetes uses this to decide whether to send traffic.
+      responses:
+        "200":
+          description: All dependency checks passed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+        "405":
+          description: Method Not Allowed
+          content:
+            text/plain:
+              schema:
+                type: string
+        "503":
+          description: One or more dependency checks failed
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              example:
+                type: about:blank
+                title: Service Unavailable
+                status: 503
+                detail: "db connection refused"
+                request_id: "abc-123"
+
+  /metrics:
+    get:
+      operationId: getMetrics
+      summary: Prometheus metrics
+      description: |
+        Exposes Prometheus metrics in the text/plain exposition format (version 0.0.4).
+        Includes the following HTTP metrics with `{method, path}` labels:
+
+        - `http_requests_total` — counter
+        - `http_request_duration_seconds` — histogram (default buckets)
+        - `http_requests_in_flight` — gauge
+      responses:
+        "200":
+          description: Metrics in Prometheus text format
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |
+                # HELP http_requests_total Total number of HTTP requests completed.
+                # TYPE http_requests_total counter
+                http_requests_total{method="GET",path="/health/live"} 42
+        "405":
+          description: Method Not Allowed
+          content:
+            text/plain:
+              schema:
+                type: string
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      description: Successful health check response body.
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+          description: Always "ok" when the check passes.
+          example: ok
+
+    Problem:
+      type: object
+      description: |
+        RFC 7807 "Problem Details for HTTP APIs" error body.
+        Matches the `pkg/problem.Problem` struct exactly.
+      required:
+        - type
+        - title
+        - status
+      properties:
+        type:
+          type: string
+          description: |
+            A URI reference identifying the problem type.
+            Set to "about:blank" when no specific type URI is available.
+          example: about:blank
+        title:
+          type: string
+          description: Short, human-readable summary of the problem type.
+          example: Service Unavailable
+        status:
+          type: integer
+          description: HTTP status code, mirroring the response status.
+          example: 503
+        detail:
+          type: string
+          description: Human-readable explanation specific to this occurrence.
+          example: "db connection refused"
+        request_id:
+          type: string
+          description: |
+            Value of the X-Request-Id request header, included for log
+            correlation. Omitted when the header is absent.
+          example: "abc-123"

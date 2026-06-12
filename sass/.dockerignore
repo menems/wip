@@ -1,0 +1,6 @@
+.git
+.claude
+coverage.out
+*.md
+Makefile
+.golangci.yml

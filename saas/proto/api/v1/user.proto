@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package api.v1.user;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/menems/saas/gen/api/v1/pb";
+
+enum Role {
+  ROLE_UNSPECIFIED = 0;
+  ROLE_ADMIN = 1;
+  ROLE_MEMBER = 2;
+}
+
+message User {
+  string id = 1;
+  string email = 2;
+  string name = 3;
+  Role role = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message CreateUserRequest {
+  string email = 1;
+  string name = 2;
+  string password = 3;
+  Role role = 4;
+}
+
+message CreateUserResponse {
+  User user = 1;
+}
+
+message ListUsersRequest {}
+
+message ListUsersResponse {
+  repeated User users = 1;
+}
+
+message GetUserRequest {
+  string id = 1;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
+
+message UpdateUserRequest {
+  string id = 1;
+  string email = 2;
+  string name = 3;
+  Role role = 4;
+}
+
+message UpdateUserResponse {
+  User user = 1;
+}
+
+message DeleteUserRequest {
+  string id = 1;
+}
+
+message DeleteUserResponse {}
+
+service UserService {
+  // CreateUser creates a new user with the given details.
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+
+  // ListUsers returns all users.
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+
+  // GetUser returns a user by ID.
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+
+  // UpdateUser modifies an existing user.
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+
+  // DeleteUser removes a user by ID.
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+}
